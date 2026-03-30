@@ -1,0 +1,258 @@
+/* pages/settings/settings.wxss */
+.page-container {
+  padding: 24rpx;
+  padding-bottom: 60rpx;
+}
+
+/* 未登录提示 */
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 48rpx;
+}
+
+.login-prompt-icon {
+  font-size: 96rpx;
+  margin-bottom: 24rpx;
+}
+
+.login-prompt-text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.login-prompt-desc {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 48rpx;
+}
+
+.btn-login {
+  background: #4A90D9;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 500;
+  padding: 20rpx 80rpx;
+  border-radius: 44rpx;
+  border: none;
+  line-height: 1.5;
+}
+
+.btn-login::after {
+  border: none;
+}
+
+/* 用户信息卡片 */
+.user-card {
+  padding: 32rpx;
+}
+
+.user-info-row {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.logout-btn {
+  font-size: 22rpx;
+  color: #F44336;
+  padding: 6rpx 16rpx;
+  border: 1rpx solid #F44336;
+  border-radius: 20rpx;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.logout-btn:active {
+  background: rgba(244, 67, 54, 0.08);
+}
+
+.user-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.user-avatar-text {
+  font-size: 48rpx;
+}
+
+.user-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.user-role {
+  font-size: 24rpx;
+  margin-top: 6rpx;
+  font-weight: 500;
+}
+
+.user-phone {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+/* 患者信息 */
+.patient-info-row {
+  display: flex;
+  align-items: center;
+}
+
+.patient-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #4A90D9;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-right: 20rpx;
+}
+
+.patient-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.patient-meta {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+/* 权限说明 */
+.perm-list {
+  margin-top: 4rpx;
+}
+
+.perm-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F8F8F8;
+}
+
+.perm-item:last-child {
+  border-bottom: none;
+}
+
+.perm-icon {
+  font-size: 26rpx;
+  margin-right: 16rpx;
+  font-weight: 700;
+}
+
+.perm-on .perm-icon {
+  color: #4CAF50;
+}
+
+.perm-off .perm-icon {
+  color: #DDD;
+}
+
+.perm-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.perm-off .perm-text {
+  color: #CCC;
+}
+
+/* 菜单 */
+.menu-list {
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item.danger .menu-text {
+  color: #F44336;
+}
+
+.menu-item.highlight .menu-text {
+  color: #4A90D9;
+  font-weight: 500;
+}
+
+.menu-icon {
+  font-size: 32rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.menu-text {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+
+.menu-desc {
+  font-size: 24rpx;
+  color: #CCC;
+  margin-right: 8rpx;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #CCC;
+  flex-shrink: 0;
+}
+
+.pending-badge {
+  background: #F44336;
+  color: #fff;
+  font-size: 20rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  border-radius: 16rpx;
+  padding: 0 8rpx;
+  text-align: center;
+  margin-right: 8rpx;
+}
+
+/* 底部说明 */
+.footer-note {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.note-text {
+  font-size: 22rpx;
+  color: #CCC;
+  display: block;
+  line-height: 1.8;
+}

@@ -1,0 +1,35 @@
+<view class="page">
+  <view class="search-bar">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索姓名、床号、诊断" bindinput="onSearch" />
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="patient-list">
+    <view class="patient-item {{item.gender === 1 ? 'male' : 'female'}}" 
+          wx:for="{{patients}}" wx:key="id"
+          wx:if="{{!searchKey || item.name.indexOf(searchKey) !== -1 || (item.bedNo && item.bedNo.indexOf(searchKey) !== -1) || (item.diagnosis && item.diagnosis.indexOf(searchKey) !== -1)}}"
+          bindtap="toggleSelect" data-id="{{item.id}}">
+      <view class="check-circle {{item._selected ? 'checked' : ''}}">
+        <text wx:if="{{item._selected}}">✓</text>
+      </view>
+      <view class="patient-info">
+        <view class="patient-name-row">
+          <text class="patient-name">{{item.name}}</text>
+          <text class="gender-tag {{item.gender === 1 ? 'male' : 'female'}}">{{item.gender === 1 ? '男' : '女'}}</text>
+        </view>
+        <text class="patient-meta">{{item.bedNo ? item.bedNo + '床 · ' : ''}}{{item.age}}岁 · {{item.department}}</text>
+        <text class="patient-diagnosis">{{item.diagnosis}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{patients.length === 0}}">
+      <text>暂无患者数据</text>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-bar" wx:if="{{mode === 'multi'}}">
+    <text class="select-count">已选 {{selectedIds.length}} 人</text>
+    <button class="btn-confirm" bindtap="confirmSelect">确认</button>
+  </view>
+</view>

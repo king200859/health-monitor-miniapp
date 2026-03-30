@@ -1,0 +1,72 @@
+<!--pages/history/history.wxml-->
+<view class="page-container">
+  <!-- 日期导航 -->
+  <view class="date-nav card">
+    <view class="nav-arrow" bindtap="prevDay">‹</view>
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="nav-date">
+        <text class="date-display">{{date}}</text>
+        <text class="date-week">{{weekDay}}</text>
+      </view>
+    </picker>
+    <view class="nav-arrow" bindtap="nextDay">›</view>
+  </view>
+
+  <!-- 当日汇总 -->
+  <view class="summary-card card" wx:if="{{summary.recordCount > 0}}">
+    <view class="summary-title">当日汇总</view>
+    <view class="summary-grid">
+      <view class="summary-item" wx:if="{{summary.waterIntake !== undefined}}">
+        <text class="summary-icon">💧</text>
+        <text class="summary-value">{{summary.waterIntake}}ml</text>
+        <text class="summary-label">饮水量</text>
+      </view>
+      <view class="summary-item" wx:if="{{summary.urineOutput !== undefined}}">
+        <text class="summary-icon">🚽</text>
+        <text class="summary-value">{{summary.urineOutput}}ml</text>
+        <text class="summary-label">尿量</text>
+      </view>
+      <view class="summary-item" wx:if="{{summary.weight !== undefined}}">
+        <text class="summary-icon">⚖️</text>
+        <text class="summary-value">{{summary.weight}}kg</text>
+        <text class="summary-label">体重</text>
+      </view>
+      <view class="summary-item" wx:if="{{summary.bloodPressureSystolic !== undefined}}">
+        <text class="summary-icon">❤️</text>
+        <text class="summary-value">{{summary.bloodPressureSystolic}}/{{summary.bloodPressureDiastolic}}</text>
+        <text class="summary-label">血压 mmHg</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="record-section" wx:if="{{records.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">记录详情 ({{records.length}}条)</text>
+      <text class="export-btn" wx:if="{{canExport}}" bindtap="exportData">导出</text>
+    </view>
+    <view class="record-list card" style="padding:0">
+      <view class="history-item" wx:for="{{records}}" wx:key="timestamp">
+        <view class="history-left">
+          <text class="history-icon">{{item.icon}}</text>
+          <view class="history-info">
+            <text class="history-name">{{item.name}}</text>
+            <text class="history-meta">{{item.time}}{{item.note ? ' · ' + item.note : ''}}</text>
+          </view>
+        </view>
+        <view class="history-right">
+          <text class="history-value" style="color: {{item.color}}">{{item.value}}{{item.unit}}</text>
+          <view class="history-delete" wx:if="{{canManage}}" bindtap="deleteRecord" data-timestamp="{{item.timestamp}}">
+            <text>✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{records.length === 0}}">
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">当日暂无记录</text>
+  </view>
+</view>

@@ -1,0 +1,121 @@
+<!--pages/chart/chart.wxml-->
+<view class="page-container">
+  <!-- 患者信息栏 -->
+  <view class="patient-bar" wx:if="{{patientInfo}}">
+    <view class="patient-bar-avatar {{patientInfo.gender === 1 ? 'pb-male' : 'pb-female'}}">
+      <text>{{patientInfo.name[0]}}</text>
+    </view>
+    <view class="patient-bar-info">
+      <text class="patient-bar-name">{{patientInfo.name}}</text>
+      <text class="patient-bar-meta">{{patientInfo.bedNo}}床 · {{patientInfo.gender === 1 ? '男' : '女'}} · {{patientInfo.age}}岁</text>
+    </view>
+    <view class="patient-bar-dept">
+      <text>{{patientInfo.department}}</text>
+    </view>
+  </view>
+
+  <!-- 指标切换 -->
+  <view class="tabs-row">
+    <view class="tab-item {{type === item.key ? 'active' : ''}}"
+          wx:for="{{indicatorTabs}}" wx:key="key"
+          bindtap="switchIndicator" data-type="{{item.key}}">
+      <view class="tab-icon-circle">
+        <text class="tab-emoji">{{item.icon}}</text>
+      </view>
+      <text class="tab-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 日期范围切换 -->
+  <view class="date-range-bar">
+    <view class="range-item {{dateRange === 7 ? 'active' : ''}}" bindtap="switchDateRange" data-range="7">7天</view>
+    <view class="range-item {{dateRange === 14 ? 'active' : ''}}" bindtap="switchDateRange" data-range="14">14天</view>
+    <view class="range-item {{dateRange === 30 ? 'active' : ''}}" bindtap="switchDateRange" data-range="30">30天</view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-row">
+    <view class="stat-card" wx:if="{{!isBloodPressure}}">
+      <text class="stat-val" style="color: {{indicator.color}}">{{avgValue}}</text>
+      <text class="stat-name">平均值</text>
+    </view>
+    <view class="stat-card stat-card-bp" wx:if="{{isBloodPressure}}">
+      <view class="bp-stat-row">
+        <text class="stat-val" style="color: #5B7FFF">{{avgValue}}</text>
+        <text class="stat-val" style="color: #9B6FE8">/{{avgValue2}}</text>
+      </view>
+      <text class="stat-name">平均血压</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-val" style="color: #4CAF50">{{maxValue}}</text>
+      <text class="stat-name">最高值</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-val" style="color: #FF9800">{{minValue}}</text>
+      <text class="stat-name">最低值</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-val"><text style="color: #4CAF50">{{normalCount}}</text><text style="color: #999">/</text><text style="color: {{abnormalCount > 0 ? '#F44336' : '#999'}}">{{abnormalCount}}</text></text>
+      <text class="stat-name">正常/异常</text>
+    </view>
+  </view>
+
+  <!-- 图表 -->
+  <view class="chart-container card">
+    <view class="chart-header">
+      <text class="chart-title">{{indicator.name}}趋势 ({{dateRangeText}})</text>
+    </view>
+    <canvas id="trendChart" type="2d" class="trend-canvas"></canvas>
+    <view class="chart-footer">
+      <view class="legend-item" wx:if="{{!isBloodPressure}}">
+        <view class="legend-dot" style="background: {{indicator.color}}"></view>
+        <text class="legend-text">{{indicator.name}}</text>
+      </view>
+      <view class="legend-item" wx:if="{{isBloodPressure}}">
+        <view class="legend-dot" style="background: #5B7FFF"></view>
+        <text class="legend-text">收缩压</text>
+      </view>
+      <view class="legend-item" wx:if="{{isBloodPressure}}">
+        <view class="legend-dot" style="background: #9B6FE8"></view>
+        <text class="legend-text">舒张压</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-area" style="background: rgba(76,175,80,0.15)"></view>
+        <text class="legend-text">正常范围</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据列表 -->
+  <view class="data-section">
+    <view class="section-title">详细数据</view>
+    <view class="data-list card">
+      <view class="data-item" wx:for="{{chartData}}" wx:key="date">
+        <view class="data-left">
+          <text class="data-date">{{item.label}}</text>
+          <text class="data-weekday">{{item.date}}</text>
+        </view>
+        <view class="data-right">
+          <view wx:if="{{item.value != null && isBloodPressure}}" class="data-bp-row">
+            <text class="data-value" style="color: #5B7FFF">{{item.value}}</text>
+            <text class="data-bp-sep">/</text>
+            <text class="data-value" style="color: #9B6FE8">{{chartData2[index].value || '--'}}</text>
+            <text class="data-bp-unit">{{indicator.unit}}</text>
+          </view>
+          <text class="data-value" wx:elif="{{item.value != null}}"
+                style="color: {{item.status === 'normal' ? '#4CAF50' : item.status === 'abnormal' ? '#F44336' : indicator.color}}">
+            {{item.value}} {{indicator.unit}}
+          </text>
+          <text class="data-empty" wx:else>未记录</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速记录（护士和护工可见） -->
+  <view class="quick-record safe-bottom" wx:if="{{canRecord}}">
+    <button class="btn-primary" bindtap="goToRecord">
+      记录{{indicator.name}}
+    </button>
+  </view>
+</view>

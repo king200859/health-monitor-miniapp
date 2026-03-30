@@ -1,0 +1,155 @@
+<!--pages/index/index.wxml-->
+<view class="page-container">
+  <!-- 顶部日期翻页 -->
+  <view class="header-section">
+    <view class="date-picker">
+      <view class="date-arrow" bindtap="prevDay">
+        <text>‹</text>
+      </view>
+      <view class="date-center" bindtap="goToday">
+        <text class="date-week">{{dateWeekDay}}</text>
+        <text class="date-str">{{dateStr}}</text>
+        <text class="date-today-tag" wx:if="{{isToday}}">今天</text>
+      </view>
+      <view class="date-arrow" bindtap="nextDay">
+        <text>›</text>
+      </view>
+    </view>
+    <view class="patient-row" wx:if="{{currentPatient}}" bindtap="{{currentRole === 'patient' ? '' : 'goToPatients'}}">
+      <view class="patient-avatar">{{currentPatient.name[0]}}</view>
+      <view class="patient-info">
+        <text class="patient-name">{{currentPatient.name}}</text>
+        <text class="patient-meta">{{currentPatient.bedNo ? currentPatient.bedNo + '床 · ' : ''}}{{currentPatient.age}}岁 · {{currentPatient.gender === 1 ? '男' : '女'}}</text>
+      </view>
+      <text class="arrow-icon" wx:if="{{currentRole !== 'patient'}}">›</text>
+    </view>
+    <view class="patient-row no-patient" wx:else bindtap="goToPatients">
+      <view class="patient-avatar empty-avatar">
+        <text style="font-size:40rpx;">+</text>
+      </view>
+      <view class="patient-info">
+        <text class="patient-name">选择患者</text>
+        <text class="patient-meta">点击选择或添加患者</text>
+      </view>
+      <text class="arrow-icon">›</text>
+    </view>
+  </view>
+
+  <!-- 当日录入统计 -->
+  <view class="quick-stats" wx:if="{{todayRecords.length > 0}}">
+    <view class="stat-item">
+      <text class="stat-number">{{todayRecords.length}}</text>
+      <text class="stat-label">{{isToday ? '今日记录' : '当日记录'}}</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{completedCount || 0}}/7</text>
+      <text class="stat-label">已监测项</text>
+    </view>
+  </view>
+
+  <!-- 无患者提示 -->
+  <view class="empty-state" wx:if="{{!currentPatient}}">
+    <text class="empty-icon">🏥</text>
+    <text class="empty-text">请先添加患者信息</text>
+    <button class="btn-primary add-btn" bindtap="goToPatients">添加患者</button>
+    <button class="btn-secondary demo-btn" wx:if="{{currentRole === 'nurse'}}" bindtap="generateMockData">生成演示数据（50位患者×30天）</button>
+  </view>
+
+  <!-- 健康指标卡片列表 -->
+  <view wx:if="{{currentPatient && cardList.length > 0}}">
+    <!-- 核心指标 -->
+    <view class="section-title">核心指标</view>
+
+    <!-- 饮水/尿量卡片 -->
+    <view class="card health-card" wx:for="{{cardList}}" wx:key="key"
+          wx:if="{{(item.category === 'intake' || item.category === 'output') && !item.isBloodPressure}}">
+      <view class="card-header" bindtap="goToChart" data-type="{{item.key}}">
+        <view class="card-left">
+          <text class="card-icon">{{item.icon}}</text>
+          <text class="card-name">{{item.name}}</text>
+        </view>
+        <view class="card-right">
+          <view class="status-badge status-{{item.status}}">
+            {{item.status === 'normal' ? '正常' : item.status === 'warning' ? '偏低' : item.status === 'danger' ? '异常' : '未记录'}}
+          </view>
+          <text class="chart-link">趋势 ›</text>
+        </view>
+      </view>
+      <view class="card-body" bindtap="{{canRecord ? 'goToRecord' : ''}}" data-type="{{item.key}}">
+        <view class="value-row">
+          <text class="value-number" style="color: {{item.color}}">{{item.displayValue}}</text>
+          <text class="value-unit">{{item.unit}}</text>
+        </view>
+        <!-- 参考范围 -->
+        <view class="range-row" wx:if="{{item.normalRange}}">
+          <text class="range-text">正常范围：{{item.normalRange.min}} - {{item.normalRange.max}} {{item.unit}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 体征指标 -->
+    <view class="section-title">体征监测</view>
+    <view class="vital-grid">
+      <block wx:for="{{cardList}}" wx:key="key">
+        <view class="vital-card card" wx:if="{{item.category === 'vital' && !item.isBloodPressure}}">
+          <view class="vital-top" bindtap="{{canRecord ? 'goToRecord' : ''}}" data-type="{{item.key}}">
+            <view class="vital-header">
+              <text class="vital-icon">{{item.icon}}</text>
+              <view class="status-dot status-{{item.status}}"></view>
+            </view>
+            <view class="vital-value" style="color: {{item.color}}">{{item.displayValue}}</view>
+            <view class="vital-name">{{item.name}}</view>
+            <view class="vital-unit">{{item.unit}}</view>
+          </view>
+          <view class="vital-chart-link" bindtap="goToChart" data-type="{{item.key}}">
+            <text>趋势 ›</text>
+          </view>
+        </view>
+        <!-- 血压卡片（合并） -->
+        <view class="vital-card card" wx:elif="{{item.isBloodPressure}}">
+          <view class="vital-top" bindtap="{{canRecord ? 'goToRecord' : ''}}" data-type="bloodPressure">
+            <view class="vital-header">
+              <text class="vital-icon">{{item.icon}}</text>
+              <view class="status-dot status-{{item.status}}"></view>
+            </view>
+            <view class="bp-value-row">
+              <view class="bp-item">
+                <text class="bp-num" style="color: #5B7FFF">{{item.systolicValue != null ? item.systolicValue : '--'}}</text>
+                <text class="bp-label">收缩压</text>
+              </view>
+              <text class="bp-sep">/</text>
+              <view class="bp-item">
+                <text class="bp-num" style="color: #9B6FE8">{{item.diastolicValue != null ? item.diastolicValue : '--'}}</text>
+                <text class="bp-label">舒张压</text>
+              </view>
+            </view>
+            <view class="vital-name">血压</view>
+            <view class="vital-unit">mmHg</view>
+          </view>
+          <view class="vital-chart-link" bindtap="goToChart" data-type="bloodPressureSystolic">
+            <text>趋势 ›</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 近7天趋势预览 -->
+    <view class="card" bindtap="goToChart" data-type="waterIntake">
+      <view class="card-title"><text class="icon">📊</text>{{isToday ? '近7天' : dateStr + '起7天'}}饮水趋势</view>
+      <view class="mini-chart">
+        <view class="chart-bar-group">
+          <view class="chart-bar-item" wx:for="{{weekSummaries}}" wx:key="date">
+            <view class="chart-bar-wrapper">
+              <view class="chart-bar" style="height: {{(item.waterIntake || 0) / 25}}%; background: {{item.waterIntake >= 2000 ? '#4CAF50' : item.waterIntake >= 1500 ? '#4A90D9' : '#F5A623'}}"></view>
+            </view>
+            <text class="chart-label">{{item.weekDay}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="chart-legend">
+        <text class="legend-text">点击查看详细趋势 ›</text>
+      </view>
+    </view>
+
+  </view>
+</view>

@@ -1,0 +1,167 @@
+.page {
+  min-height: 100vh;
+  background: #F5F6FA;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-bar {
+  padding: 20rpx 24rpx;
+  background: #F5F6FA;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  height: 72rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.search-icon {
+  font-size: 24rpx;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 26rpx;
+  height: 72rpx;
+  color: #333;
+}
+
+.patient-list {
+  flex: 1;
+  padding: 0 24rpx;
+}
+
+.patient-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx;
+  margin-bottom: 12rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.patient-item.male {
+  border-left: 6rpx solid #4A9FE5;
+}
+
+.patient-item.female {
+  border-left: 6rpx solid #E87A9E;
+}
+
+.check-circle {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid #DDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  margin-top: 4rpx;
+  flex-shrink: 0;
+  font-size: 22rpx;
+  color: #fff;
+}
+
+.check-circle.checked {
+  background: #4A90D9;
+  border-color: #4A90D9;
+}
+
+.patient-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-name-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+.patient-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1E293B;
+  margin-right: 12rpx;
+}
+
+.gender-tag {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 600;
+}
+
+.gender-tag.male {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.gender-tag.female {
+  background: #FCE7F3;
+  color: #DB2777;
+}
+
+.patient-meta {
+  font-size: 22rpx;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.patient-diagnosis {
+  font-size: 22rpx;
+  color: #64748B;
+  display: block;
+}
+
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #CBD5E1;
+  font-size: 28rpx;
+}
+
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.select-count {
+  font-size: 26rpx;
+  color: #64748B;
+}
+
+.btn-confirm {
+  background: #4A90D9;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+  padding: 16rpx 48rpx;
+  border-radius: 40rpx;
+  border: none;
+  line-height: 1.5;
+}
+
+.btn-confirm::after {
+  border: none;
+}
+
+.btn-confirm[disabled] {
+  background: #D0DCE8;
+  color: #fff;
+}

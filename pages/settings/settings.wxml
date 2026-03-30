@@ -1,0 +1,136 @@
+<!--pages/settings/settings.wxml-->
+<view class="page-container">
+  <!-- 未登录状态 -->
+  <view wx:if="{{!currentRole}}" class="login-prompt">
+    <view class="login-prompt-icon">🔒</view>
+    <text class="login-prompt-text">您尚未登录</text>
+    <text class="login-prompt-desc">请选择身份登录后使用系统</text>
+    <button class="btn-login" bindtap="goToLogin">前往登录</button>
+  </view>
+
+  <!-- 已登录状态 -->
+  <view wx:else>
+    <!-- 用户信息卡片 -->
+    <view class="card user-card">
+      <view class="user-info-row">
+        <view class="user-avatar" style="background: {{roleConfig.color}}">
+          <text class="user-avatar-text">{{roleConfig.icon}}</text>
+        </view>
+        <view class="user-detail">
+          <text class="user-name">{{currentUser.name}}</text>
+          <text class="user-role" style="color: {{roleConfig.color}}">{{roleConfig.name}}</text>
+          <text class="user-phone" wx:if="{{currentUser.phone}}">📱 {{currentUser.phone}}</text>
+        </view>
+        <text class="logout-btn" catchtap="logout">退出登录</text>
+      </view>
+    </view>
+
+    <!-- 患者管理入口 -->
+    <view class="card" wx:if="{{currentRole !== 'patient'}}">
+      <view class="menu-list">
+        <view class="menu-item highlight" bindtap="goToPatients">
+          <text class="menu-icon">📋</text>
+          <text class="menu-text">患者管理</text>
+          <text class="menu-desc">{{currentPatient ? currentPatient.name : '未选择'}}</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 申请审批（仅护士） -->
+    <view class="card" wx:if="{{currentRole === 'nurse'}}">
+      <view class="menu-list">
+        <view class="menu-item highlight" bindtap="goToApply">
+          <text class="menu-icon">📝</text>
+          <text class="menu-text">申请审批</text>
+          <view class="pending-badge" wx:if="{{pendingCount > 0}}">{{pendingCount}}</view>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item highlight" bindtap="goToNurseManage">
+          <text class="menu-icon">👥</text>
+          <text class="menu-text">人员管理</text>
+          <text class="menu-desc">护工/家属、病人</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 当前患者信息（护士/护工显示） -->
+    <view class="card" wx:if="{{currentRole !== 'patient' && currentPatient}}">
+      <view class="card-title"><text class="icon">🏥</text>当前患者</view>
+      <view class="patient-info-row">
+        <view class="patient-avatar">{{currentPatient.name[0]}}</view>
+        <view class="patient-detail">
+          <text class="patient-name">{{currentPatient.name}}</text>
+          <text class="patient-meta">{{currentPatient.bedNo ? currentPatient.bedNo + '床 · ' : ''}}{{currentPatient.age}}岁 · {{currentPatient.gender === 1 ? '男' : '女'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 权限说明 -->
+    <view class="card">
+      <view class="card-title"><text class="icon">🔐</text>当前权限</view>
+      <view class="perm-list">
+        <view class="perm-item {{hasPerm.canViewAll ? 'perm-on' : 'perm-off'}}">
+          <text class="perm-icon">{{hasPerm.canViewAll ? '✓' : '✗'}}</text>
+          <text class="perm-text">查看所有患者数据</text>
+        </view>
+        <view class="perm-item {{hasPerm.canRecord ? 'perm-on' : 'perm-off'}}">
+          <text class="perm-icon">{{hasPerm.canRecord ? '✓' : '✗'}}</text>
+          <text class="perm-text">记录健康指标</text>
+        </view>
+        <view class="perm-item {{hasPerm.canManage ? 'perm-on' : 'perm-off'}}">
+          <text class="perm-icon">{{hasPerm.canManage ? '✓' : '✗'}}</text>
+          <text class="perm-text">管理患者信息</text>
+        </view>
+        <view class="perm-item {{hasPerm.canSetRange ? 'perm-on' : 'perm-off'}}">
+          <text class="perm-icon">{{hasPerm.canSetRange ? '✓' : '✗'}}</text>
+          <text class="perm-text">设置正常范围</text>
+        </view>
+        <view class="perm-item {{hasPerm.canExport ? 'perm-on' : 'perm-off'}}">
+          <text class="perm-icon">{{hasPerm.canExport ? '✓' : '✗'}}</text>
+          <text class="perm-text">导出数据</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据管理（仅护士） -->
+    <view class="card" wx:if="{{currentRole === 'nurse'}}">
+      <view class="card-title"><text class="icon">💾</text>数据管理</view>
+      <view class="menu-list">
+        <view class="menu-item highlight" bindtap="generateMockData">
+          <text class="menu-icon">📊</text>
+          <text class="menu-text">生成演示数据</text>
+          <text class="menu-desc">50位患者×30天</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="exportAllData">
+          <text class="menu-icon">📤</text>
+          <text class="menu-text">导出全部数据</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item danger" bindtap="clearAllData">
+          <text class="menu-icon">🗑️</text>
+          <text class="menu-text">清除所有数据</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他 -->
+    <view class="card">
+      <view class="menu-list">
+        <view class="menu-item" bindtap="showAbout">
+          <text class="menu-icon">ℹ️</text>
+          <text class="menu-text">关于</text>
+          <text class="menu-desc">v{{version}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部说明 -->
+    <view class="footer-note">
+      <text class="note-text">本地模拟版 · 数据存储于本地设备</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,61 @@
+<view class="page-container">
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
+      <text>待审批</text>
+      <view class="tab-badge" wx:if="{{pendingCount > 0}}">{{pendingCount}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'approved' ? 'active' : ''}}" bindtap="switchTab" data-tab="approved">
+      <text>已通过</text>
+    </view>
+    <view class="tab-item {{activeTab === 'rejected' ? 'active' : ''}}" bindtap="switchTab" data-tab="rejected">
+      <text>已拒绝</text>
+    </view>
+    <view class="tab-item {{activeTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text>全部</text>
+    </view>
+  </view>
+
+  <!-- 申请列表 -->
+  <view class="app-list" wx:if="{{applications.length > 0}}">
+    <view class="app-card card" wx:for="{{applications}}" wx:key="id">
+      <view class="app-header">
+        <view class="app-role-tag {{item.userRole === 'caregiver' ? 'tag-caregiver' : 'tag-patient'}}">
+          <text>{{item.userRole === 'caregiver' ? '护工/家属' : '病人'}}</text>
+        </view>
+        <view class="app-status-tag status-{{item.status}}">
+          <text>{{item.status === 'pending' ? '待审批' : item.status === 'approved' ? '已通过' : '已拒绝'}}</text>
+        </view>
+      </view>
+      <view class="app-body">
+        <view class="app-info-row">
+          <text class="app-info-label">{{item.userRole === 'caregiver' ? '申请人' : '病人姓名'}}</text>
+          <text class="app-info-value">{{item.userName}}</text>
+        </view>
+        <view class="app-info-row">
+          <text class="app-info-label">申请患者</text>
+          <text class="app-info-value">{{item.patientName}}（{{item.patientBedNo || '无床号'}}）</text>
+        </view>
+        <view class="app-info-row">
+          <text class="app-info-label">申请时间</text>
+          <text class="app-info-value">{{item.createdAtText}}</text>
+        </view>
+        <view class="app-info-row" wx:if="{{item.status !== 'pending'}}">
+          <text class="app-info-label">审批时间</text>
+          <text class="app-info-value">{{item.reviewedAtText}}</text>
+        </view>
+      </view>
+      <!-- 操作按钮 -->
+      <view class="app-actions" wx:if="{{item.status === 'pending'}}">
+        <button class="btn-reject" bindtap="rejectApp" data-id="{{item.id}}">拒绝</button>
+        <button class="btn-approve" bindtap="approveApp" data-id="{{item.id}}">通过</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">{{activeTab === 'pending' ? '暂无待审批的申请' : '暂无相关申请记录'}}</text>
+  </view>
+</view>

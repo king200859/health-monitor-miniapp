@@ -1,0 +1,125 @@
+<view class="login-page">
+  <!-- 顶部装饰背景 -->
+  <view class="login-header">
+    <view class="header-bg"></view>
+    <view class="header-circle header-circle-1"></view>
+    <view class="header-circle header-circle-2"></view>
+    <view class="header-circle header-circle-3"></view>
+    <view class="header-content">
+      <view class="logo-wrap">
+        <text class="app-logo">🏥</text>
+      </view>
+      <text class="app-title">健康监测助手</text>
+      <text class="app-subtitle">Health Monitoring Assistant</text>
+      <view class="feature-tags">
+        <view class="tag"><text>体征监测</text></view>
+        <view class="tag"><text>趋势分析</text></view>
+        <view class="tag"><text>患者管理</text></view>
+      </view>
+      <text class="designer-text">设计：唐海英</text>
+    </view>
+  </view>
+
+  <!-- 登录主体 -->
+  <view class="login-body">
+    <!-- 步骤1：登录 -->
+    <block wx:if="{{step === 1}}">
+      <!-- 快捷登录卡片 -->
+      <view class="card-section">
+        <text class="section-label">快捷登录</text>
+        <view class="auth-card">
+          <view class="auth-icon-wrap">
+            <text class="auth-icon">📱</text>
+          </view>
+          <text class="auth-title">微信手机号登录</text>
+          <text class="auth-desc">获取手机号用于身份验证</text>
+          <button class="btn-wechat-auth" bindtap="mockGetPhoneNumber">
+            微信授权登录
+          </button>
+          <text class="auth-hint">当前为调试模式，模拟微信授权登录</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider-wrap">
+        <view class="divider-line"></view>
+        <text class="divider-text">手动输入</text>
+        <view class="divider-line"></view>
+      </view>
+
+      <!-- 手动输入 -->
+      <view class="card-section disabled-section">
+        <view class="disabled-badge">
+          <text>🔒 暂未开放</text>
+        </view>
+        <view class="phone-input-card disabled">
+          <text class="input-prefix">+86</text>
+          <view class="input-divider"></view>
+          <input
+            class="phone-input"
+            type="number"
+            maxlength="11"
+            placeholder="暂不可用，请使用上方授权登录"
+            value="{{inputPhone}}"
+            bindinput="onPhoneInput"
+            disabled
+          />
+        </view>
+        <button class="btn-phone-login disabled" disabled>
+          登 录
+        </button>
+      </view>
+    </block>
+
+    <!-- 步骤2：选择模拟手机号 -->
+    <block wx:elif="{{step === 2}}">
+      <text class="section-label">选择登录身份（调试）</text>
+      <view class="phone-list">
+        <view class="phone-item" wx:for="{{mockAccounts}}" wx:key="phone" bindtap="selectPhone" data-phone="{{item.phone}}">
+          <view class="phone-item-icon" style="background: {{item.color}}18; border: 2rpx solid {{item.color}}30">
+            <text>{{item.icon}}</text>
+          </view>
+          <view class="phone-item-info">
+            <text class="phone-item-role">{{item.name}}</text>
+            <text class="phone-item-label">{{item.label}}</text>
+          </view>
+          <view class="phone-item-badge" style="background: {{item.color}}15; color: {{item.color}}">
+            <text>{{item.role === 'nurse' ? '护士' : item.role === 'caregiver' ? '护工' : '病人'}}</text>
+          </view>
+          <text class="phone-item-arrow">›</text>
+        </view>
+      </view>
+      <view class="back-link" bindtap="backToStep1">
+        <text class="back-icon">‹</text>
+        <text class="back-text">返回</text>
+      </view>
+    </block>
+
+    <!-- 非通过状态提示 -->
+    <block wx:elif="{{step === 3}}">
+      <view class="result-card result-{{loginResult.type}}">
+        <view class="result-circle result-circle-{{loginResult.type}}">
+          <text class="result-icon">{{loginResult.icon}}</text>
+        </view>
+        <text class="result-title">{{loginResult.title}}</text>
+        <text class="result-desc">{{loginResult.desc}}</text>
+        <view class="result-actions">
+          <button wx:if="{{loginResult.type === 'pending'}}" class="btn-back" bindtap="backToStep1">返回登录页</button>
+          <button wx:elif="{{loginResult.type === 'rejected'}}" class="btn-back" bindtap="backToStep1">返回登录页</button>
+          <button wx:elif="{{loginResult.type === 'need_bind_caregiver'}}" class="btn-enter" bindtap="selectPatientForCaregiver">选择患者申请</button>
+          <button wx:elif="{{loginResult.type === 'need_bind_patient'}}" class="btn-enter" bindtap="selectPatientForSelf">登记患者信息</button>
+          <button wx:elif="{{loginResult.type === 'unknown'}}" class="btn-back" bindtap="backToStep1">返回登录页</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- 底部说明 -->
+    <view class="login-footer">
+      <view class="footer-inner">
+        <text class="footer-text">健康监测助手 v1.0</text>
+        <text class="footer-divider">|</text>
+        <text class="footer-text">调试模式</text>
+      </view>
+    </view>
+  </view>
+</view>

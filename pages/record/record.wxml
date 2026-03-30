@@ -1,0 +1,179 @@
+<!--pages/record/record.wxml-->
+<view class="page-container">
+
+  <!-- 患者信息 + 日期选择 -->
+  <view class="header-section">
+    <view class="patient-info" wx:if="{{currentPatient}}">
+      <text class="patient-name">{{currentPatient.name}}</text>
+      <text class="patient-bed">{{currentPatient.bedNo}}</text>
+    </view>
+    <view class="date-nav">
+      <view class="date-arrow" bindtap="prevDay">
+        <text>‹</text>
+      </view>
+      <picker mode="date" value="{{selectedDate}}" end="{{todayStr}}" bindchange="onDatePick">
+        <view class="date-display">
+          <text class="date-text">{{selectedDateDisplay}}</text>
+          <text class="date-sub" wx:if="{{selectedDate != todayStr}}">{{selectedDate}}</text>
+          <text class="date-arrow-small" wx:if="{{selectedDate != todayStr}}">▼</text>
+        </view>
+      </picker>
+      <view class="date-arrow {{selectedDate === todayStr ? 'disabled' : ''}}" bindtap="nextDay">
+        <text>›</text>
+      </view>
+    </view>
+    <view class="today-btn" wx:if="{{selectedDate != todayStr}}" bindtap="goToday">
+      <text>回到今天</text>
+    </view>
+  </view>
+
+  <!-- 指标选择网格 -->
+  <view class="indicator-section">
+    <view class="section-label">选择记录类型</view>
+    <view class="indicator-grid">
+      <view class="indicator-item {{selectedKey === item.key ? 'active' : ''}}"
+            wx:for="{{indicatorList}}" wx:key="key"
+            bindtap="selectIndicator" data-key="{{item.key}}"
+            style="border-color: {{selectedKey === item.key ? item.color : '#E8E8E8'}}; background: {{selectedKey === item.key ? item.bgColor : '#fff'}}">
+        <text class="indicator-icon">{{item.icon}}</text>
+        <text class="indicator-name" style="color: {{selectedKey === item.key ? item.color : '#666'}}">{{item.name}}</text>
+        <text class="indicator-unit" style="color: {{selectedKey === item.key ? item.color : '#BBB'}}">{{item.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 录入表单（选中指标后显示） -->
+  <view class="form-section" wx:if="{{selectedIndicator}}">
+
+    <!-- 血压录入 -->
+    <view class="card form-card" wx:if="{{isBloodPressure}}">
+      <view class="card-header-row">
+        <text class="card-title">{{selectedIndicator.icon}} 血压记录</text>
+        <text class="card-date" wx:if="{{selectedDate != todayStr}}">{{selectedDate}}</text>
+      </view>
+      <view class="bp-input-group">
+        <view class="bp-item">
+          <text class="bp-label">收缩压 (高压)</text>
+          <view class="bp-input-row">
+            <input class="bp-input" type="digit" placeholder="如 120" value="{{systolicValue}}" bindinput="onSystolicInput" />
+            <text class="bp-unit">mmHg</text>
+          </view>
+        </view>
+        <text class="bp-divider">/</text>
+        <view class="bp-item">
+          <text class="bp-label">舒张压 (低压)</text>
+          <view class="bp-input-row">
+            <input class="bp-input" type="digit" placeholder="如 80" value="{{diastolicValue}}" bindinput="onDiastolicInput" />
+            <text class="bp-unit">mmHg</text>
+          </view>
+        </view>
+      </view>
+      <view class="bp-hint">
+        <text class="hint-text">正常：收缩压 90-140，舒张压 60-90 mmHg</text>
+      </view>
+    </view>
+
+    <!-- 普通录入 -->
+    <view class="card form-card" wx:else>
+      <view class="card-header-row">
+        <text class="card-title">{{selectedIndicator.icon}} {{selectedIndicator.name}}记录</text>
+        <text class="card-date" wx:if="{{selectedDate != todayStr}}">{{selectedDate}}</text>
+      </view>
+
+      <!-- 快捷值 -->
+      <view class="quick-values" wx:if="{{quickValues.length > 0}}">
+        <view class="quick-label">{{selectedKey === 'waterIntake' ? '快捷追加' : '快捷选择'}}</view>
+        <view class="quick-list">
+          <view class="quick-item" wx:for="{{quickValues}}" wx:key="*this"
+                bindtap="onQuickValue" data-value="{{item}}"
+                style="color: {{selectedColor}}; background: {{selectedBgColor}}">
+            +{{item}}{{selectedIndicator.unit}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 数值输入 -->
+      <view class="input-group">
+        <view class="input-label">
+          <text class="input-name">{{selectedIndicator.name}}</text>
+          <text class="input-range">正常：{{selectedIndicator.normalRange.min}} - {{selectedIndicator.normalRange.max}} {{selectedIndicator.unit}}</text>
+        </view>
+        <view class="input-row">
+          <input class="main-input" type="digit" placeholder="请输入数值"
+                 value="{{value}}" bindinput="onValueInput"
+                 style="color: {{selectedIndicator.color}}" />
+          <text class="input-unit">{{selectedIndicator.unit}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间和备注 -->
+    <view class="card">
+      <view class="field-row">
+        <text class="field-label">记录时间</text>
+        <picker mode="time" value="{{time}}" bindchange="onTimeChange">
+          <view class="field-value">
+            <text>{{time}}</text>
+            <text class="field-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="divider"></view>
+      <view class="field-row">
+        <text class="field-label">备注</text>
+        <input class="field-input" placeholder="选填，如：饭后测量" value="{{note}}" bindinput="onNoteInput" />
+      </view>
+    </view>
+
+    <!-- 补录提示 -->
+    <view class="backfill-tip" wx:if="{{selectedDate != todayStr}}">
+      <text class="backfill-icon">⚠</text>
+      <text class="backfill-text">当前为补录模式，数据将保存到 {{selectedDate}}</text>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section safe-bottom">
+      <button class="btn-primary submit-btn" bindtap="submitRecord">保存记录</button>
+    </view>
+  </view>
+
+  <!-- 未选择指标提示 -->
+  <view class="empty-hint" wx:if="{{!selectedIndicator}}">
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">请选择上方指标开始记录</text>
+  </view>
+
+  <!-- 当天已记录列表 -->
+  <view class="day-records" wx:if="{{dayRecords.length > 0 && selectedIndicator}}">
+    <view class="section-title">
+      {{selectedDate === todayStr ? '今日' : selectedDate}} 记录 ({{dayRecords.length}})
+    </view>
+    <view class="record-list">
+      <!-- 血压记录 -->
+      <block wx:if="{{isBloodPressure}}">
+        <view class="record-item" wx:for="{{dayRecords}}" wx:key="timestamp">
+          <view class="record-info">
+            <text class="record-value" style="color: #5B7FFF">{{item.systolic}}/{{item.diastolic}} mmHg</text>
+            <text class="record-time">{{item.time}}<text wx:if="{{item.note}}"> · {{item.note}}</text></text>
+          </view>
+          <view class="record-delete" wx:if="{{canManage}}" bindtap="deleteRecord" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </block>
+      <!-- 普通记录 -->
+      <block wx:else>
+        <view class="record-item" wx:for="{{dayRecords}}" wx:key="timestamp">
+          <view class="record-info">
+            <text class="record-value" style="color: {{selectedIndicator.color}}">{{item.value}}{{selectedIndicator.unit}}</text>
+            <text class="record-time">{{item.time}}<text wx:if="{{item.note}}"> · {{item.note}}</text></text>
+          </view>
+          <view class="record-delete" wx:if="{{canManage}}" bindtap="deleteRecord" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+</view>

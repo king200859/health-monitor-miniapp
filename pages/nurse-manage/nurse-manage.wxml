@@ -1,0 +1,102 @@
+<!--pages/nurse-manage/nurse-manage.wxml-->
+<view class="page-container">
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'caregiver' ? 'active' : ''}}" bindtap="switchTab" data-tab="caregiver">
+      <text>护工/家属</text>
+      <view class="tab-badge" wx:if="{{caregiverList.length > 0}}">{{caregiverList.length}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'patient' ? 'active' : ''}}" bindtap="switchTab" data-tab="patient">
+      <text>病人账号</text>
+      <view class="tab-badge" wx:if="{{patientList.length > 0}}">{{patientList.length}}</view>
+    </view>
+  </view>
+
+  <!-- 护工/家属管理 -->
+  <block wx:if="{{activeTab === 'caregiver'}}">
+    <view class="list-section" wx:if="{{caregiverList.length > 0}}">
+      <view class="manage-card card" wx:for="{{caregiverList}}" wx:key="phone">
+        <view class="card-main">
+          <view class="card-avatar" style="background: #F5A62320">
+            <text>🤝</text>
+          </view>
+          <view class="card-info">
+            <view class="card-name-row">
+              <text class="card-name">{{item.name}}</text>
+              <view class="status-tag status-{{item.bound ? 'bound' : 'unbound'}}">{{item.bound ? '已绑定' : '未绑定'}}</view>
+            </view>
+            <text class="card-phone">📱 {{item.phone}}</text>
+            <view class="assigned-list" wx:if="{{item.assignedPatients.length > 0}}">
+              <text class="assigned-label">关联患者：</text>
+              <view class="assigned-tags">
+                <text class="assigned-tag" wx:for="{{item.assignedPatients}}" wx:for-item="ap" wx:key="id">{{ap.name}}({{ap.bedNo}}床)</text>
+              </view>
+            </view>
+            <text class="card-patients empty" wx:else>暂未分配患者</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <view class="action-btn" bindtap="editCaregiver" data-phone="{{item.phone}}" data-name="{{item.name}}">
+            <text>编辑</text>
+          </view>
+          <view class="action-btn" bindtap="manageCaregiverPatients" data-userid="{{item.userId}}" data-name="{{item.name}}" data-phone="{{item.phone}}">
+            <text>分配患者</text>
+          </view>
+          <view class="action-btn danger" bindtap="removeCaregiver" data-phone="{{item.phone}}" data-name="{{item.name}}">
+            <text>删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <text class="empty-icon">🤝</text>
+      <text class="empty-text">暂无护工/家属</text>
+      <text class="empty-hint">点击下方按钮添加</text>
+    </view>
+    <view class="add-section safe-bottom">
+      <button class="btn-primary add-btn" bindtap="addCaregiver">+ 添加护工/家属</button>
+    </view>
+  </block>
+
+  <!-- 病人账号管理 -->
+  <block wx:if="{{activeTab === 'patient'}}">
+    <view class="list-section" wx:if="{{patientList.length > 0}}">
+      <view class="manage-card card" wx:for="{{patientList}}" wx:key="phone">
+        <view class="card-main">
+          <view class="card-avatar" style="background: #7ED32120">
+            <text>🧑</text>
+          </view>
+          <view class="card-info">
+            <view class="card-name-row">
+              <text class="card-name">{{item.name}}</text>
+              <view class="status-tag status-{{item.appStatus === 'approved' ? 'bound' : item.appStatus === 'pending' ? 'pending' : 'unbound'}}">
+                {{item.appStatus === 'approved' ? '已授权' : item.appStatus === 'pending' ? '审核中' : item.appStatus === 'rejected' ? '已拒绝' : '未绑定'}}
+              </view>
+            </view>
+            <text class="card-phone">📱 {{item.phone}}</text>
+            <text class="card-patients" wx:if="{{item.patientInfo}}">
+              关联患者：{{item.patientInfo.name}}（{{item.patientInfo.bedNo || '无床号'}}）
+            </text>
+            <text class="card-patients empty" wx:else>暂未关联患者</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <view class="action-btn" bindtap="editPatientBinding" data-phone="{{item.phone}}" data-name="{{item.name}}" data-patientid="{{item.patientId}}">
+            <text>编辑</text>
+          </view>
+          <view class="action-btn danger" bindtap="removePatient" data-phone="{{item.phone}}" data-name="{{item.name}}">
+            <text>删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <text class="empty-icon">🧑</text>
+      <text class="empty-text">暂无病人账号</text>
+      <text class="empty-hint">点击下方按钮添加</text>
+    </view>
+    <view class="add-section safe-bottom">
+      <button class="btn-primary add-btn" bindtap="addPatient">+ 添加病人账号</button>
+    </view>
+  </block>
+</view>

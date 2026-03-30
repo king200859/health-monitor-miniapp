@@ -1,0 +1,140 @@
+<!--pages/patient-detail/patient-detail.wxml-->
+<view class="page-container">
+  <!-- 模拟生成按钮（仅新增模式） -->
+  <view class="mock-generate-section" wx:if="{{canManage && !isEdit}}">
+    <view class="mock-btn" bindtap="generateRandomPatient">
+      <text class="mock-icon">🎲</text>
+      <text class="mock-text">模拟生成患者信息</text>
+    </view>
+    <text class="mock-hint">随机生成一条患者信息，自动填入表单</text>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="card">
+    <view class="card-title"><text class="icon">👤</text>基本信息</view>
+    <!-- 拍照识别 -->
+    <view class="ocr-section" wx:if="{{canManage}}">
+      <view class="ocr-btn" bindtap="scanIdCard">
+        <text class="ocr-icon">📷</text>
+        <text class="ocr-text">拍照识别身份证</text>
+      </view>
+      <text class="ocr-hint">拍摄身份证人像面，自动填充姓名、性别、身份证号</text>
+    </view>
+    <!-- 识别结果预览 -->
+    <view class="ocr-result" wx:if="{{ocrResult}}">
+      <view class="ocr-result-header">
+        <text class="ocr-result-title">识别结果</text>
+        <text class="ocr-result-status {{ocrResult.success ? 'ocr-success' : 'ocr-fail'}}">{{ocrResult.success ? '已填充' : '识别失败'}}</text>
+      </view>
+      <view class="ocr-result-body" wx:if="{{ocrResult.success}}">
+        <text class="ocr-result-item">姓名：{{ocrResult.name}}</text>
+        <text class="ocr-result-item">性别：{{ocrResult.gender}}</text>
+        <text class="ocr-result-item">身份证号：{{ocrResult.id}}</text>
+      </view>
+      <text class="ocr-result-error" wx:else>{{ocrResult.errorMsg}}</text>
+    </view>
+    <view class="form-group">
+      <text class="form-label">姓名</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" placeholder="请输入患者姓名" value="{{form.name}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="name" disabled="{{!canManage}}" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">身份证号</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" placeholder="请输入身份证号" value="{{form.idCard}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="idCard" disabled="{{!canManage}}" maxlength="18" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">年龄</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" type="number" placeholder="请输入年龄" value="{{form.age}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="age" disabled="{{!canManage}}" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">性别</text>
+      <radio-group bindchange="{{canManage ? 'onGenderChange' : ''}}">
+        <label class="radio-item">
+          <radio value="1" checked="{{form.gender === 1}}" color="#4A90D9" disabled="{{!canManage}}" />
+          <text>男</text>
+        </label>
+        <label class="radio-item">
+          <radio value="2" checked="{{form.gender === 2}}" color="#4A90D9" disabled="{{!canManage}}" />
+          <text>女</text>
+        </label>
+      </radio-group>
+    </view>
+  </view>
+
+  <!-- 住院信息 -->
+  <view class="card">
+    <view class="card-title"><text class="icon">🏥</text>住院信息</view>
+    <view class="form-group">
+      <text class="form-label">床号</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" placeholder="如：3" value="{{form.bedNo}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="bedNo" disabled="{{!canManage}}" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">科室</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" placeholder="如：心内科" value="{{form.department}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="department" disabled="{{!canManage}}" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">诊断</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" placeholder="如：高血压、糖尿病" value="{{form.diagnosis}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="diagnosis" disabled="{{!canManage}}" />
+    </view>
+  </view>
+
+  <!-- 联系方式 -->
+  <view class="card">
+    <view class="card-title"><text class="icon">📞</text>联系方式</view>
+    <view class="form-group">
+      <text class="form-label">联系电话</text>
+      <input class="form-input {{canManage ? '' : 'readonly'}}" type="number" placeholder="患者或家属电话" value="{{form.phone}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="phone" disabled="{{!canManage}}" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <textarea class="form-textarea {{canManage ? '' : 'readonly'}}" placeholder="其他备注信息" value="{{form.notes}}" bindinput="{{canManage ? 'onInput' : ''}}" data-field="notes" maxlength="200" disabled="{{!canManage}}"></textarea>
+    </view>
+  </view>
+
+  <!-- 指标正常范围设置（编辑模式，护士可见） -->
+  <view class="card" wx:if="{{isEdit && canSetRange}}">
+    <view class="card-title-row" bindtap="toggleRangeSettings">
+      <view class="card-title"><text class="icon">⚙️</text>指标正常范围设置</view>
+      <text class="toggle-arrow">{{showRangeSettings ? '收起' : '展开'}}</text>
+    </view>
+    <view class="range-hint">留空则使用系统默认范围，填写后将按自定义范围判断指标是否正常</view>
+
+    <view class="range-list" wx:if="{{showRangeSettings}}">
+      <view class="range-item" wx:for="{{rangeItems}}" wx:key="key">
+        <view class="range-header">
+          <text class="range-icon">{{item.icon}}</text>
+          <text class="range-name">{{item.name}}（{{item.unit}}）</text>
+        </view>
+        <view class="range-default">
+          默认：{{item.defaultMin}} - {{item.defaultMax}}
+        </view>
+        <view class="range-inputs">
+          <view class="range-input-group">
+            <text class="range-input-label">下限</text>
+            <input class="range-input" type="digit" placeholder="{{item.defaultMin}}"
+                   value="{{item.customMin}}" bindinput="onRangeInput"
+                   data-index="{{index}}" data-field="customMin" />
+          </view>
+          <text class="range-sep">-</text>
+          <view class="range-input-group">
+            <text class="range-input-label">上限</text>
+            <input class="range-input" type="digit" placeholder="{{item.defaultMax}}"
+                   value="{{item.customMax}}" bindinput="onRangeInput"
+                   data-index="{{index}}" data-field="customMax" />
+          </view>
+          <view class="range-reset" bindtap="resetRange" data-index="{{index}}">
+            <text>重置</text>
+          </view>
+        </view>
+      </view>
+
+
+    </view>
+  </view>
+
+  <!-- 保存按钮（仅护士可见） -->
+  <view class="save-section safe-bottom" wx:if="{{canManage}}">
+    <button class="btn-primary save-btn" bindtap="savePatient">
+      {{isEdit ? '保存修改' : '添加患者'}}
+    </button>
+  </view>
+</view>

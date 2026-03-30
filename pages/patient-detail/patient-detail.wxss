@@ -1,0 +1,380 @@
+/* pages/patient-detail/patient-detail.wxss */
+.page-container {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+
+/* === 模拟生成按钮 === */
+.mock-generate-section {
+  margin-bottom: 20rpx;
+}
+
+.mock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(99, 102, 241, 0.3);
+}
+
+.mock-btn:active {
+  opacity: 0.85;
+}
+
+.mock-icon {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+}
+
+.mock-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mock-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 12rpx;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 28rpx;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.form-input {
+  background: #F8F9FA;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.form-input.readonly {
+  background: #F0F0F0;
+  color: #999;
+}
+
+.form-textarea {
+  background: #F8F9FA;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  width: 100%;
+  height: 160rpx;
+  box-sizing: border-box;
+}
+
+.form-textarea.readonly {
+  background: #F0F0F0;
+  color: #999;
+}
+
+.radio-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 40rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.save-section {
+  padding: 20rpx 0;
+}
+
+.save-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+/* === 范围设置 === */
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-arrow {
+  font-size: 24rpx;
+  color: #4A90D9;
+}
+
+.range-hint {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+  margin-bottom: 24rpx;
+}
+
+.range-list {
+  margin-top: 8rpx;
+}
+
+.range-item {
+  padding: 24rpx 0;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.range-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.range-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.range-default {
+  font-size: 22rpx;
+  color: #BBB;
+  margin-bottom: 16rpx;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+}
+
+.range-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.range-input-label {
+  font-size: 20rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.range-input {
+  background: #F8F9FA;
+  border-radius: 8rpx;
+  padding: 12rpx 16rpx;
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+}
+
+.range-sep {
+  font-size: 32rpx;
+  color: #CCC;
+  margin: 0 16rpx;
+  padding-bottom: 20rpx;
+}
+
+.range-reset {
+  padding: 12rpx 16rpx;
+  background: #FFF0F0;
+  border-radius: 8rpx;
+  margin-left: 8rpx;
+  font-size: 22rpx;
+  color: #D0021B;
+}
+
+/* === 目标值设置 === */
+.target-section {
+  margin-top: 32rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx dashed #E0E0E0;
+}
+
+.target-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.target-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.target-label {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.target-input-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.target-input {
+  background: #F8F9FA;
+  border-radius: 8rpx;
+  padding: 12rpx 16rpx;
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+  width: 140rpx;
+}
+
+.target-unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+/* === 通用卡片 === */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.icon {
+  margin-right: 8rpx;
+}
+
+.btn-primary {
+  background: #4A90D9;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.safe-bottom {
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+/* === 拍照识别身份证 === */
+.ocr-section {
+  background: linear-gradient(135deg, #F0F4FF 0%, #E8F0FE 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.ocr-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0;
+  background: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(74, 144, 217, 0.1);
+}
+
+.ocr-btn:active {
+  background: #F5F8FF;
+}
+
+.ocr-icon {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+}
+
+.ocr-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #4A90D9;
+}
+
+.ocr-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 12rpx;
+  text-align: center;
+}
+
+/* 识别结果 */
+.ocr-result {
+  background: #FAFAFA;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 28rpx;
+  border: 1rpx solid #E8E8E8;
+}
+
+.ocr-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.ocr-result-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.ocr-result-status {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.ocr-success {
+  color: #4CAF50;
+  background: #E8F5E9;
+}
+
+.ocr-fail {
+  color: #F44336;
+  background: #FFEBEE;
+}
+
+.ocr-result-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.ocr-result-item {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.8;
+}
+
+.ocr-result-error {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
