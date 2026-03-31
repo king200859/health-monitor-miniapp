@@ -147,6 +147,28 @@ function generateMockData() {
   }
   wx.setStorageSync('patients', patientList);
 
+  // 补充空床位至70个
+  var totalBeds = 70;
+  var existingBeds = {};
+  for (var i = 0; i < patientList.length; i++) {
+    if (patientList[i].bedNo) existingBeds[patientList[i].bedNo] = true;
+  }
+  for (var bed = 1; bed <= totalBeds; bed++) {
+    if (!existingBeds[String(bed)]) {
+      patientList.push({
+        id: '', name: '', age: '', gender: 0,
+        bedNo: String(bed),
+        department: '', diagnosis: '', phone: '', notes: '', idCard: '',
+        _isEmpty: true
+      });
+    }
+  }
+  // 按床位号排序
+  patientList.sort(function(a, b) {
+    return (parseInt(a.bedNo) || 999) - (parseInt(b.bedNo) || 999);
+  });
+  wx.setStorageSync('patients', patientList);
+
   // 生成护工/家属绑定和分配关系
   var bindings = [];
   var assignments = [];

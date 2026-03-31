@@ -4,6 +4,19 @@
   min-height: 100vh;
   background: #F5F6FA;
   padding-bottom: 140rpx;
+  padding-top: 360rpx;
+}
+
+/* ===== 顶部固定区域 ===== */
+.top-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* ===== 顶部渐变信息栏 ===== */
@@ -209,17 +222,31 @@
 
 /* ===== 搜索栏 ===== */
 .toolbar {
-  padding: 20rpx 24rpx;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 0;
+  background: rgba(245, 246, 250, 0.6);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+/* ===== 可滚动内容区域 ===== */
+.scroll-area {
+  flex: 1;
+  height: 0;
   background: #F5F6FA;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-bottom-spacer {
+  height: 140rpx;
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 16rpx;
   padding: 0 24rpx;
   height: 72rpx;
@@ -252,11 +279,12 @@
   display: flex;
   flex-wrap: wrap;
   padding: 14rpx 24rpx 0;
+  justify-content: flex-start;
+  gap: 10rpx;
 }
 
 .tile {
-  width: 17.2%;
-  margin-left: 2%;
+  width: calc((100% - 40rpx) / 5);
   margin-bottom: 16rpx;
   position: relative;
   border-radius: 20rpx;
@@ -270,11 +298,7 @@
     0 10rpx 24rpx rgba(0, 0, 0, 0.04);
   border-bottom: 4rpx solid rgba(0, 0, 0, 0.04);
   overflow: hidden;
-}
-
-/* 每行第1个无左边距 */
-.tile:nth-child(5n+1) {
-  margin-left: 0;
+  box-sizing: border-box;
 }
 
 /* 男卡渐变 */
@@ -470,6 +494,7 @@
   bottom: 0;
   left: 0;
   right: 0;
+  margin-bottom: -80rpx;
   display: flex;
   background: #fff;
   padding: 16rpx 24rpx;
@@ -860,6 +885,8 @@
 .bed-picker-item:nth-child(5n+1) {
   margin-left: 0;
 }
+
+/* 床位网格移除旧间距 hack（现用 gap 统一控制） */
 
 .bed-picker-item.bed-selected {
   background: #6366F1;

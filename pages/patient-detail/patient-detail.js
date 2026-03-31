@@ -201,18 +201,29 @@ Page({
     // 随机年龄 25-90
     var age = Math.floor(Math.random() * 66) + 25;
 
-    // 分配床位：只分配 1-99 范围内尚未占用的床位号
+    // 分配床位：优先从空床位中选最小的，否则选任意未占用床位
     var allPatients = app.getVisiblePatients();
+    var emptyBeds = [];
     var usedBeds = {};
     for (var i = 0; i < allPatients.length; i++) {
-      if (allPatients[i].bedNo) usedBeds[allPatients[i].bedNo] = true;
+      if (!allPatients[i]._isEmpty && allPatients[i].bedNo) {
+        usedBeds[allPatients[i].bedNo] = true;
+      }
+      if (allPatients[i]._isEmpty) {
+        emptyBeds.push(parseInt(allPatients[i].bedNo) || 999);
+      }
     }
+    emptyBeds.sort(function(a, b) { return a - b; });
     var bedNo = '';
-    for (var n = 1; n <= 99; n++) {
-      if (!usedBeds[String(n)]) { bedNo = String(n); break; }
+    if (emptyBeds.length > 0) {
+      bedNo = String(emptyBeds[0]);
+    } else {
+      for (var n = 1; n <= 70; n++) {
+        if (!usedBeds[String(n)]) { bedNo = String(n); break; }
+      }
     }
     if (!bedNo) {
-      wx.showToast({ title: '床位已满（99床）', icon: 'none' });
+      wx.showToast({ title: '床位已满（70床）', icon: 'none' });
       return;
     }
 
@@ -256,22 +267,7 @@ Page({
       ocrResult: null
     });
 
-    // 自动保存到存储，立即添加到床位卡片
-    var id = app.addPatient({
-      name: name,
-      age: age,
-      gender: gender,
-      idCard: idCard,
-      bedNo: bedNo,
-      department: '心内科',
-      diagnosis: diagnosis,
-      phone: phone,
-      notes: '',
-      customRanges: customRanges
-    });
-    app.setCurrentPatient(id);
-    wx.showToast({ title: '已生成并添加：' + bedNo + '床 ' + name, icon: 'success' });
-    setTimeout(function() { wx.navigateBack(); }, 500);
+    wx.showToast({ title: '已生成信息，请检查后点击"添加患者"', icon: 'none', duration: 2500 });
   },
 
   // 拍照识别身份证
@@ -424,6 +420,10 @@ Page({
         notes: form.notes.trim(),
         customRanges: customRanges
       });
+      if (!id) {
+        wx.showToast({ title: form.bedNo + '床已被占用，请换床位', icon: 'none' });
+        return;
+      }
       app.setCurrentPatient(id);
       wx.showToast({ title: '添加成功', icon: 'success' });
       setTimeout(function() { wx.navigateBack(); }, 500);

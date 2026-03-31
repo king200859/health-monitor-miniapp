@@ -83,11 +83,13 @@ App({
 
   // 初始化存储
   initStorage() {
-    const patients = wx.getStorageSync('patients');
+    var patients = wx.getStorageSync('patients');
     if (!patients) {
       wx.setStorageSync('patients', []);
     }
-    const currentPatientId = wx.getStorageSync('currentPatientId');
+    // 确保补充空床位至70个
+    this.ensureEmptyBeds();
+    var currentPatientId = wx.getStorageSync('currentPatientId');
     if (!currentPatientId) {
       wx.setStorageSync('currentPatientId', '');
     }
@@ -224,9 +226,57 @@ App({
     var id = 'P' + Date.now();
     patient.id = id;
     patient.createdAt = Date.now();
-    patients.push(patient);
+    // 检查床位是否已被在院患者占用（排除空床位记录）
+    for (var i = 0; i < patients.length; i++) {
+      if (patients[i].bedNo === patient.bedNo && !patients[i]._isEmpty) {
+        return null; // 床位已被占用
+      }
+    }
+    // 如果指定的床位号已存在空床位记录，替换它；否则追加
+    var bedFound = false;
+    for (var j = 0; j < patients.length; j++) {
+      if (patients[j].bedNo === patient.bedNo && patients[j]._isEmpty) {
+        patients[j] = patient;
+        bedFound = true;
+        break;
+      }
+    }
+    if (!bedFound) {
+      patients.push(patient);
+    }
     wx.setStorageSync('patients', patients);
     return id;
+  },
+
+  // 确保补充空床位至70个
+  ensureEmptyBeds(totalBeds) {
+    totalBeds = totalBeds || 70;
+    var patients = wx.getStorageSync('patients') || [];
+    var existingBeds = {};
+    for (var i = 0; i < patients.length; i++) {
+      if (patients[i].bedNo) {
+        existingBeds[patients[i].bedNo] = true;
+      }
+    }
+    var needUpdate = false;
+    for (var bed = 1; bed <= totalBeds; bed++) {
+      if (!existingBeds[String(bed)]) {
+        patients.push({
+          id: '', name: '', age: '', gender: 0,
+          bedNo: String(bed),
+          department: '', diagnosis: '', phone: '', notes: '', idCard: '',
+          _isEmpty: true
+        });
+        existingBeds[String(bed)] = true;
+        needUpdate = true;
+      }
+    }
+    if (needUpdate) {
+      patients.sort(function(a, b) {
+        return (parseInt(a.bedNo) || 999) - (parseInt(b.bedNo) || 999);
+      });
+      wx.setStorageSync('patients', patients);
+    }
   },
 
   // 删除患者（已废弃，改用 moveOutPatient）
@@ -301,8 +351,8 @@ App({
     return list;
   },
 
-  // 将出院/转科患者恢复到原床位
-  restorePatient: function(patientId) {
+  // 将出院/转科患者恢复到指定空床位
+  restorePatientToBed: function(patientId, bedNo) {
     var movedList = wx.getStorageSync('movedPatients') || [];
     var movedRecord = null;
     movedList = movedList.filter(function(p) {
@@ -312,13 +362,12 @@ App({
     if (!movedRecord) return false;
     wx.setStorageSync('movedPatients', movedList);
 
-    // 恢复到原床位
     var patient = {
       id: movedRecord.id,
       name: movedRecord.name,
       age: movedRecord.age,
       gender: movedRecord.gender,
-      bedNo: movedRecord.bedNo,
+      bedNo: bedNo,
       department: movedRecord.department || '',
       diagnosis: movedRecord.diagnosis || '',
       phone: movedRecord.phone || '',
@@ -330,7 +379,7 @@ App({
     var patients = wx.getStorageSync('patients') || [];
     var bedFound = false;
     for (var i = 0; i < patients.length; i++) {
-      if (patients[i].bedNo === patient.bedNo && patients[i]._isEmpty) {
+      if (patients[i].bedNo === bedNo && patients[i]._isEmpty) {
         patients[i] = patient;
         bedFound = true;
         break;
@@ -339,6 +388,9 @@ App({
     if (!bedFound) {
       patients.push(patient);
     }
+    patients.sort(function(a, b) {
+      return (parseInt(a.bedNo) || 999) - (parseInt(b.bedNo) || 999);
+    });
     wx.setStorageSync('patients', patients);
     return true;
   },
@@ -926,6 +978,26 @@ App({
       patients[i].createdAt = Date.now() - 30 * 86400000;
       list.push(patients[i]);
     }
+    // 补充空床位至70个
+    var totalBeds = 70;
+    var existingBeds = {};
+    for (var i = 0; i < list.length; i++) {
+      existingBeds[list[i].bedNo] = true;
+    }
+    for (var bed = 1; bed <= totalBeds; bed++) {
+      if (!existingBeds[String(bed)]) {
+        list.push({
+          id: '', name: '', age: '', gender: 0,
+          bedNo: String(bed),
+          department: '', diagnosis: '', phone: '', notes: '', idCard: '',
+          _isEmpty: true
+        });
+      }
+    }
+    // 按床位号排序
+    list.sort(function(a, b) {
+      return (parseInt(a.bedNo) || 999) - (parseInt(b.bedNo) || 999);
+    });
     wx.setStorageSync('patients', list);
     wx.setStorageSync('currentPatientId', 'P1');
     // 生成护工/家属绑定和分配关系

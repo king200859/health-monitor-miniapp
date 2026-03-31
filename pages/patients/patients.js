@@ -30,7 +30,13 @@ Page({
     moveNote: '',
     // 出院列表弹窗
     showMovedList: false,
-    movedPatientsFull: []
+    movedPatientsFull: [],
+    // 恢复住院 - 空床位选择
+    showBedPicker: false,
+    restorePatientId: '',
+    restorePatientName: '',
+    restoreBedNo: '',
+    emptyBeds: []
   },
 
   onShow: function() {
@@ -50,8 +56,36 @@ Page({
       pendingCount: app.getPendingCount(),
       currentRoleName: roleName
     });
+    this.cleanupDuplicateBeds();
     this.loadPatients();
     this.loadMovedPatients();
+  },
+
+  // 清理重复床位：每张床只保留一条，优先保留真实患者而非空床位
+  cleanupDuplicateBeds: function() {
+    var patients = wx.getStorageSync('patients') || [];
+    var bedMap = {}; // { bedNo: { real: p | null, empty: p | null } }
+    for (var i = 0; i < patients.length; i++) {
+      var p = patients[i];
+      if (!p.bedNo) continue;
+      if (!bedMap[p.bedNo]) {
+        bedMap[p.bedNo] = { real: null, empty: null };
+      }
+      if (p._isEmpty) {
+        if (!bedMap[p.bedNo].empty) bedMap[p.bedNo].empty = p;
+      } else {
+        if (!bedMap[p.bedNo].real) bedMap[p.bedNo].real = p;
+      }
+    }
+    var cleaned = [];
+    var bedNos = Object.keys(bedMap).sort(function(a, b) {
+      return (parseInt(a) || 999) - (parseInt(b) || 999);
+    });
+    for (var j = 0; j < bedNos.length; j++) {
+      var entry = bedMap[bedNos[j]];
+      cleaned.push(entry.real || entry.empty);
+    }
+    wx.setStorageSync('patients', cleaned);
   },
 
   getGreeting: function() {
@@ -134,6 +168,8 @@ Page({
   onSearch: function(e) {
     var key = (e.detail.value || '').trim().toLowerCase();
     this.doSearch(key);
+    // 滚动到顶部，避免搜索结果被 sticky 搜索栏遮挡
+    wx.pageScrollTo({ scrollTop: 0, duration: 200 });
   },
 
   // 按性别过滤
@@ -146,6 +182,7 @@ Page({
   clearSearch: function() {
     this.setData({ searchKey: '' });
     this.loadPatients();
+    wx.pageScrollTo({ scrollTop: 0, duration: 200 });
   },
 
   doSearch: function(key) {
@@ -292,21 +329,60 @@ Page({
     this.setData({ showMovedList: false });
   },
 
-  restorePatient: function(e) {
+  // 点击"恢复在院" -> 弹出空床位选择弹窗
+  showRestoreBedPicker: function(e) {
     if (!app.hasPermission('canManage')) return;
     var id = e.currentTarget.dataset.id;
-    var that = this;
-    app.restorePatient(id);
-    this.loadPatients();
-    this.loadMovedPatients();
-    // 更新弹窗中的列表
-    var all = app.getMovedPatients();
-    all = all.map(function(p) {
-      p.movedOutTime = p.movedOutAt ? formatDate(p.movedOutAt) : '';
-      return p;
+    var name = e.currentTarget.dataset.name;
+    // 获取当前所有空床位
+    var allPatients = app.getVisiblePatients();
+    var emptyBeds = [];
+    for (var i = 0; i < allPatients.length; i++) {
+      if (allPatients[i]._isEmpty) {
+        emptyBeds.push({ bedNo: allPatients[i].bedNo });
+      }
+    }
+    this.setData({
+      showMovedList: false,
+      showBedPicker: true,
+      restorePatientId: id,
+      restorePatientName: name,
+      restoreBedNo: '',
+      emptyBeds: emptyBeds
     });
-    this.setData({ movedPatientsFull: all });
-    wx.showToast({ title: '已恢复在院', icon: 'success' });
+  },
+
+  // 选择空床位
+  selectRestoreBed: function(e) {
+    this.setData({ restoreBedNo: e.currentTarget.dataset.bed });
+  },
+
+  // 关闭空床位选择弹窗
+  closeBedPicker: function() {
+    this.setData({ showBedPicker: false });
+  },
+
+  // 确认恢复住院
+  confirmRestore: function() {
+    if (!app.hasPermission('canManage')) return;
+    var id = this.data.restorePatientId;
+    var bedNo = this.data.restoreBedNo;
+    var name = this.data.restorePatientName;
+    if (!id || !bedNo) return;
+    var that = this;
+    wx.showModal({
+      title: '确认恢复住院',
+      content: '将"' + name + '"安排到' + bedNo + '床？',
+      success: function(res) {
+        if (res.confirm) {
+          app.restorePatientToBed(id, bedNo);
+          that.setData({ showBedPicker: false });
+          that.loadPatients();
+          that.loadMovedPatients();
+          wx.showToast({ title: '已安排至' + bedNo + '床', icon: 'success' });
+        }
+      }
+    });
   },
 
   noop: function() {}

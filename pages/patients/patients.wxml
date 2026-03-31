@@ -1,123 +1,127 @@
 <!--pages/patients/patients.wxml-->
+<!-- 顶部固定区域（移到 page 外部，backdrop-filter 才能正确模糊滚动的卡片） -->
+<view class="top-fixed">
+<!-- 顶部渐变信息栏 -->
+<view class="hero">
+  <view class="hero-inner">
+    <view class="hero-user">
+      <view class="hero-avatar">{{currentUser.name[0] || 'N'}}</view>
+      <view class="hero-info">
+        <view class="hero-row">
+          <text class="hero-name">{{currentUser.name}}</text>
+          <text class="hero-badge">{{currentRoleName}}</text>
+        </view>
+        <text class="hero-sub">{{currentUser.phone}}</text>
+      </view>
+      <view class="hero-right">
+        <text class="hero-greeting">{{greeting}}</text>
+        <text class="hero-date">{{todayStr}}</text>
+      </view>
+    </view>
+    <!-- 统计数字 -->
+    <view class="hero-stats" wx:if="{{patients.length > 0}}">
+      <view class="hs-item {{activeFilter === 'all' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="all" style="position: relative; left: 2rpx; top: 0rpx">
+        <text class="hs-num">{{occupiedCount}}</text>
+        <text class="hs-label">在院</text>
+      </view>
+      <view class="hs-divider"></view>
+      <view class="hs-item {{activeFilter === 'male' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="male">
+        <text class="hs-num blue">{{maleCount}}</text>
+        <text class="hs-label">男</text>
+      </view>
+      <view class="hs-divider"></view>
+      <view class="hs-item {{activeFilter === 'female' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="female">
+        <text class="hs-num pink">{{femaleCount}}</text>
+        <text class="hs-label">女</text>
+      </view>
+      <view class="hs-divider" wx:if="{{emptyBedCount > 0}}"></view>
+      <view class="hs-item {{activeFilter === 'empty' ? 'hs-active' : ''}}" wx:if="{{emptyBedCount > 0}}" bindtap="filterPatients" data-filter="empty">
+        <text class="hs-num gray">{{emptyBedCount}}</text>
+        <text class="hs-label">空床</text>
+      </view>
+      <view class="hs-divider" wx:if="{{movedCount > 0}}"></view>
+      <view class="hs-item" wx:if="{{movedCount > 0}}" bindtap="viewMovedPatients">
+        <text class="hs-num orange">{{movedCount}}</text>
+        <text class="hs-label">出院/转科</text>
+      </view>
+      <view class="hs-divider" wx:if="{{canManage}}"></view>
+      <view class="hs-item" wx:if="{{canManage}}" bindtap="goToApply">
+        <text class="hs-num {{pendingCount > 0 ? 'red' : ''}}">{{pendingCount}}</text>
+        <text class="hs-label">审批</text>
+        <view class="hs-dot" wx:if="{{pendingCount > 0}}"></view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 搜索栏 -->
+<view class="toolbar" wx:if="{{patients.length > 0}}">
+  <view class="search-box">
+    <text class="search-icon">🔍</text>
+    <input class="search-input" placeholder="搜索姓名 / 床位 / 诊断" value="{{searchKey}}" bindinput="onSearch" confirm-type="search" />
+    <text class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch">✕</text>
+  </view>
+</view>
+</view>
+
 <view class="page">
-  <!-- 顶部渐变信息栏 -->
-  <view class="hero">
-    <view class="hero-inner">
-      <view class="hero-user">
-        <view class="hero-avatar">{{currentUser.name[0] || 'N'}}</view>
-        <view class="hero-info">
-          <view class="hero-row">
-            <text class="hero-name">{{currentUser.name}}</text>
-            <text class="hero-badge">{{currentRoleName}}</text>
-          </view>
-          <text class="hero-sub">{{currentUser.phone}}</text>
-        </view>
-        <view class="hero-right">
-          <text class="hero-greeting">{{greeting}}</text>
-          <text class="hero-date">{{todayStr}}</text>
-        </view>
-      </view>
-      <!-- 统计数字 -->
-      <view class="hero-stats" wx:if="{{patients.length > 0}}">
-        <view class="hs-item {{activeFilter === 'all' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="all" style="position: relative; left: 2rpx; top: 0rpx">
-          <text class="hs-num">{{occupiedCount}}</text>
-          <text class="hs-label">在院</text>
-        </view>
-        <view class="hs-divider"></view>
-        <view class="hs-item {{activeFilter === 'male' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="male">
-          <text class="hs-num blue">{{maleCount}}</text>
-          <text class="hs-label">男</text>
-        </view>
-        <view class="hs-divider"></view>
-        <view class="hs-item {{activeFilter === 'female' ? 'hs-active' : ''}}" bindtap="filterPatients" data-filter="female">
-          <text class="hs-num pink">{{femaleCount}}</text>
-          <text class="hs-label">女</text>
-        </view>
-        <view class="hs-divider" wx:if="{{emptyBedCount > 0}}"></view>
-        <view class="hs-item {{activeFilter === 'empty' ? 'hs-active' : ''}}" wx:if="{{emptyBedCount > 0}}" bindtap="filterPatients" data-filter="empty">
-          <text class="hs-num gray">{{emptyBedCount}}</text>
-          <text class="hs-label">空床</text>
-        </view>
-        <view class="hs-divider" wx:if="{{movedCount > 0}}"></view>
-        <view class="hs-item" wx:if="{{movedCount > 0}}" bindtap="viewMovedPatients">
-          <text class="hs-num orange">{{movedCount}}</text>
-          <text class="hs-label">出院/转科</text>
-        </view>
-        <view class="hs-divider" wx:if="{{canManage}}"></view>
-        <view class="hs-item" wx:if="{{canManage}}" bindtap="goToApply">
-          <text class="hs-num {{pendingCount > 0 ? 'red' : ''}}">{{pendingCount}}</text>
-          <text class="hs-label">审批</text>
-          <view class="hs-dot" wx:if="{{pendingCount > 0}}"></view>
-        </view>
-      </view>
-    </view>
-  </view>
 
-  <!-- 搜索 + 操作栏 -->
-  <view class="toolbar" wx:if="{{patients.length > 0}}">
-    <view class="search-box">
-      <text class="search-icon">🔍</text>
-      <input class="search-input" placeholder="搜索姓名 / 床位 / 诊断" value="{{searchKey}}" bindinput="onSearch" confirm-type="search" />
-      <text class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch">✕</text>
+<!-- 患者五列网格 -->
+<view class="grid" wx:if="{{displayPatients.length > 0}}">
+  <block wx:for="{{displayPatients}}" wx:key="id">
+  <!-- 在院患者卡片 -->
+  <view class="tile {{item.id === currentPatientId ? 'tile-active' : ''}} {{item.gender === 1 ? 'tile-male' : 'tile-female'}}"
+        wx:if="{{!item._isEmpty}}"
+        bindtap="selectPatient" data-id="{{item.id}}"
+        bindlongpress="{{canManage ? 'showPatientMenu' : ''}}" data-id="{{item.id}}" data-name="{{item.name}}">
+    <view class="tile-stripe"></view>
+    <view class="tile-avatar {{item.gender === 1 ? 'av-male' : 'av-female'}}">
+      <text>{{item.bedNo}}床</text>
     </view>
+    <text class="tile-name">{{item.name}} {{item.gender === 1 ? '♂' : '♀'}}</text>
+    <text class="tile-info">{{item.age}}岁</text>
+    <view class="tile-check" wx:if="{{item.id === currentPatientId}}"></view>
   </view>
+  <!-- 空床位卡片（原位保留） -->
+  <view class="tile tile-empty"
+        wx:elif="{{!searchKey}}"
+        bindlongpress="{{canManage ? 'assignToEmptyBed' : ''}}" data-bed="{{item.bedNo}}">
+    <view class="tile-stripe tile-stripe-empty"></view>
+    <view class="tile-avatar av-empty">
+      <text>{{item.bedNo}}床</text>
+    </view>
+    <text class="tile-name tile-name-empty">空床位</text>
+    <text class="tile-info tile-info-empty">待分配</text>
+  </view>
+  </block>
+</view>
 
-  <!-- 患者五列网格 -->
-  <view class="grid" wx:if="{{displayPatients.length > 0}}">
-    <block wx:for="{{displayPatients}}" wx:key="id">
-    <!-- 在院患者卡片 -->
-    <view class="tile {{item.id === currentPatientId ? 'tile-active' : ''}} {{item.gender === 1 ? 'tile-male' : 'tile-female'}}"
-          wx:if="{{!item._isEmpty}}"
-          bindtap="selectPatient" data-id="{{item.id}}"
-          bindlongpress="{{canManage ? 'showPatientMenu' : ''}}" data-id="{{item.id}}" data-name="{{item.name}}">
-      <view class="tile-stripe"></view>
-      <view class="tile-avatar {{item.gender === 1 ? 'av-male' : 'av-female'}}">
-        <text>{{item.bedNo}}床</text>
-      </view>
-      <text class="tile-name">{{item.name}} {{item.gender === 1 ? '♂' : '♀'}}</text>
-      <text class="tile-info">{{item.age}}岁</text>
-      <view class="tile-check" wx:if="{{item.id === currentPatientId}}"></view>
-    </view>
-    <!-- 空床位卡片（原位保留） -->
-    <view class="tile tile-empty"
-          wx:elif="{{!searchKey}}"
-          bindlongpress="{{canManage ? 'assignToEmptyBed' : ''}}" data-bed="{{item.bedNo}}">
-      <view class="tile-stripe tile-stripe-empty"></view>
-      <view class="tile-avatar av-empty">
-        <text>{{item.bedNo}}床</text>
-      </view>
-      <text class="tile-name tile-name-empty">空床位</text>
-      <text class="tile-info tile-info-empty">待分配</text>
-    </view>
-    </block>
+<!-- 空状态 -->
+<view class="empty" wx:if="{{patients.length === 0 && !searchKey}}">
+  <view class="empty-box">
+    <text class="empty-title">暂无在院患者</text>
+    <text class="empty-desc">点击下方按钮添加第一位患者</text>
   </view>
+</view>
+<view class="empty" wx:if="{{patients.length === 0 && searchKey}}">
+  <view class="empty-box">
+    <text class="empty-title">未找到匹配患者</text>
+    <text class="empty-desc">试试其他关键词</text>
+  </view>
+</view>
+</view>
 
-  <!-- 空状态 -->
-  <view class="empty" wx:if="{{patients.length === 0 && !searchKey}}">
-    <view class="empty-box">
-      <text class="empty-title">暂无在院患者</text>
-      <text class="empty-desc">点击下方按钮添加第一位患者</text>
-    </view>
+<!-- 底部操作栏 -->
+<view class="bottom-bar" wx:if="{{patients.length > 0}}">
+  <view class="bottom-btn add" bindtap="addPatient" wx:if="{{canManage}}">
+    <text class="bottom-btn-icon">+</text>
+    <text class="bottom-btn-text">添加患者</text>
   </view>
-  <view class="empty" wx:if="{{patients.length === 0 && searchKey}}">
-    <view class="empty-box">
-      <text class="empty-title">未找到匹配患者</text>
-      <text class="empty-desc">试试其他关键词</text>
-    </view>
+  <view class="bottom-btn" bindtap="viewMovedPatients" wx:if="{{canManage && movedCount > 0}}">
+    <text class="bottom-btn-text">出院/转科记录</text>
   </view>
-
-  <!-- 底部操作栏 -->
-  <view class="bottom-bar" wx:if="{{patients.length > 0}}">
-    <view class="bottom-btn add" bindtap="addPatient" wx:if="{{canManage}}">
-      <text class="bottom-btn-icon">+</text>
-      <text class="bottom-btn-text">添加患者</text>
-    </view>
-    <view class="bottom-btn" bindtap="viewMovedPatients" wx:if="{{canManage && movedCount > 0}}">
-      <text class="bottom-btn-text">出院记录</text>
-    </view>
-    <view class="bottom-btn" bindtap="goToNurseManage" wx:if="{{canManage}}">
-      <text class="bottom-btn-text">人员管理</text>
-    </view>
+  <view class="bottom-btn" bindtap="goToNurseManage" wx:if="{{canManage}}">
+    <text class="bottom-btn-text">人员管理</text>
   </view>
 </view>
 
@@ -181,10 +185,37 @@
           </view>
           <view class="moved-note" wx:if="{{item.moveNote}}"><text>备注：{{item.moveNote}}</text></view>
           <view class="moved-time"><text>{{item.movedOutTime}}</text></view>
-          <view class="moved-restore" wx:if="{{canManage}}" bindtap="restorePatient" data-id="{{item.id}}"><text>恢复在院</text></view>
+          <view class="moved-restore" wx:if="{{canManage}}" bindtap="showRestoreBedPicker" data-id="{{item.id}}" data-name="{{item.name}}"><text>恢复在院</text></view>
         </view>
       </view>
       <view class="empty-modal" wx:else><text>暂无记录</text></view>
     </scroll-view>
+  </view>
+</view>
+
+<!-- 恢复住院 - 选择空床位弹窗 -->
+<view class="modal-mask" wx:if="{{showBedPicker}}" bindtap="closeBedPicker">
+  <view class="modal modal-lg" catchtap="noop">
+    <view class="modal-head">
+      <text>安排床位 - {{restorePatientName}}</text>
+      <text class="modal-x" bindtap="closeBedPicker">✕</text>
+    </view>
+    <view class="modal-body">
+      <text class="modal-hint">请选择一个空床位安排该患者</text>
+      <scroll-view class="bed-picker-scroll" scroll-y>
+        <view class="bed-picker-grid" wx:if="{{emptyBeds.length > 0}}">
+          <view class="bed-picker-item {{restoreBedNo === item.bedNo ? 'bed-selected' : ''}}"
+                wx:for="{{emptyBeds}}" wx:key="bedNo"
+                bindtap="selectRestoreBed" data-bed="{{item.bedNo}}">
+            <text>{{item.bedNo}}床</text>
+          </view>
+        </view>
+        <view class="empty-modal" wx:else><text>暂无空床位</text></view>
+      </scroll-view>
+    </view>
+    <view class="modal-foot">
+      <view class="modal-btn cancel" bindtap="closeBedPicker"><text>取消</text></view>
+      <view class="modal-btn {{restoreBedNo ? 'ok' : 'disabled'}}" bindtap="confirmRestore"><text>确认安排</text></view>
+    </view>
   </view>
 </view>
