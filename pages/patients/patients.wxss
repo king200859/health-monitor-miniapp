@@ -494,7 +494,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  margin-bottom: -80rpx;
+  margin-bottom: -10rpx;
   display: flex;
   background: #fff;
   padding: 16rpx 24rpx;
